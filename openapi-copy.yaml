@@ -1,0 +1,145 @@
+openapi: 3.0.0
+servers:
+  - url: http://localhost:8081/
+info:
+  title: Aalto University studnet API 
+  version: '1.0.0'
+paths:
+  /student:
+    get:
+      tags:
+        - Students
+      operationId: app.get_students
+      summary: Get all the students
+      responses:
+        '200':
+          description: Return students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student'
+    post:
+      summary: Create a student
+      operationId: app.post_student
+      tags:
+        - Students
+      parameters:
+        - $ref: '#/components/parameters/name'
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  '/student/{student_id}':
+    get:
+      tags:
+        - Students
+      operationId: app.get_student
+      summary: Get a single student
+      parameters:
+        - $ref: '#/components/parameters/student_id'
+      responses:
+        '200':
+          description: Return student information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/student'
+        '404':
+          description: Student informations does not exist
+    
+    put:
+      tags:
+        - Students
+      operationId: app.put_student
+      summary: Please Create or update a or multiple student information.
+      parameters:
+        - $ref: '#/components/parameters/student_id'
+      responses:
+        '200':
+          description: student database updated
+        '201':
+          description: New studnet infomation created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: student
+              $ref: '#/components/schemas/student'
+    delete:
+      tags:
+        - Students
+      operationId: app.delete_student
+      summary: Remove a student from Database
+      parameters:
+        - $ref: '#/components/parameters/student_id'
+      responses:
+        '204':
+          description: studnet was deleted from Aalto student database
+        '404':
+          description: Student does not exist is the Aalto student database
+components:
+  parameters:
+    name:
+      name: name
+      description: Name of the student
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9-]+$'
+   
+    student_id:
+      name: student_id
+      description: Each student have a Unique identifier
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9-]+$'
+  schemas:
+    student:
+      type: object
+      required:
+        - name
+        - student_type
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+          example: '1'
+          readOnly: true
+        name:
+          type: string
+          description: students's name
+          example: John Doe
+          minLength: 1
+          maxLength: 100
+        student_type:
+          type: string
+          description: what level student, e.g., Bachelor or Master
+          example: Master
+          minLength: 1
+        created:
+          type: string
+          format: date-time
+          description: Creation time
+          example: '2019-07-07T15:49:51.230+02:00'
+          readOnly: true
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
